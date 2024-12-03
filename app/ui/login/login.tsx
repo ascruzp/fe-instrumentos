@@ -1,5 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, CardBody, CardHeader, Input } from "@nextui-org/react";
 
@@ -8,7 +9,12 @@ export default function Login() {
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [isClient, setIsClient] = useState(false);
 	const router = useRouter();
+
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -27,15 +33,13 @@ export default function Login() {
 			if (data.error) {
 				setError(data.error);
 			} else {
-				localStorage.setItem("isAdmin", data.valid);
+				if (isClient) {
+					localStorage.setItem("isAdmin", data.valid);
 
-				if (data.valid) {
-					localStorage.setItem("redirectTo", data.redirectTo);
-				}
-				if (data.valid) {
-					router.push(data.redirectTo);
-				} else {
-					router.push("/login");
+					if (data.valid) {
+						localStorage.setItem("redirectTo", data.redirectTo);
+					}
+					router.push(data.valid ? data.redirectTo : "/login");
 				}
 			}
 		} catch (err) {
@@ -47,7 +51,11 @@ export default function Login() {
 
 	return (
 		<div className="flex justify-center items-center min-h-screen bg-gray-100/50">
-			<img src="/fondo_login.jpg" className="absolute top-0 left-0 object-contain w-full" alt="fondo-img"/>
+			<img
+				src="/fondo_login.jpg"
+				className="absolute top-0 left-0 object-contain w-full"
+				alt="fondo-img"
+			/>
 			<Card className="w-full sm:w-96 p-10">
 				<CardHeader className="text-center">
 					<h3 className="text-2xl font-semibold text-center w-full">Iniciar sesión</h3>

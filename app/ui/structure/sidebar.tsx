@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 // className={`${pathname === '/' ? 'hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900' : ''}`}
 // className={`${pathname.startsWith('/ventas') ? 'hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900' : ''}`}
@@ -26,17 +26,26 @@ import { AppDispatch, RootState } from "@/src/store/store";
 import { Button } from "@nextui-org/react";
 import { setUserStatus } from "@/src/store/reducer";
 export function MultiLevelSidebar() {
+	const [isAdmin, setIsAdmin] = useState<string | null>(null);
 	const { isOpenSideBar } = useSelector((state: RootState) => state.inventario);
-	const isAdmin = localStorage.getItem("isAdmin");
 	const dispatch = useDispatch<AppDispatch>();
 	const router = useRouter();
 	const [open, setOpen] = React.useState(0);
 	const pathname = usePathname();
-
+	useEffect(() => {
+		const storedAdmin = localStorage.getItem("isAdmin");
+		setIsAdmin(storedAdmin);
+	}, []);
 	const handleOpen = (value: number) => {
 		setOpen(open === value ? 0 : value);
 	};
 
+	const handleLogout = () => {
+		if (typeof window !== "undefined") {
+			localStorage.removeItem("isAdmin");
+			router.replace("/login");
+		}
+	};
 	return (
 		<Card
 			className={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full bg-white border-r border-gray-200 ${isOpenSideBar ? "sm:translate-x-0" : "sm:-translate-x-full"} dark:bg-gray-800 dark:border-gray-700`}
@@ -497,10 +506,7 @@ export function MultiLevelSidebar() {
 					color="danger"
 					className="mt-auto font-bold"
 					variant="flat"
-					onClick={() => {
-						localStorage.removeItem("isAdmin");
-						router.replace("/login");
-					}}
+					onClick={handleLogout}
 					fullWidth
 				>
 					Cerrar Sesión

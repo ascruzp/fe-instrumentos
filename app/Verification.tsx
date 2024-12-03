@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import Login from "./ui/login/login";
@@ -24,23 +24,24 @@ interface VerificationProps {
 }
 
 const Verification: React.FC<VerificationProps> = ({ children }) => {
+	const [isAdmin, setIsAdmin] = useState<string | null>(null);
 	const router = useRouter();
 	const pathname = usePathname();
-	const isAdmin = localStorage.getItem("isAdmin");
 
 	useEffect(() => {
-		if (isAdmin === "0" || isAdmin === null) {
+		const storedAdmin = localStorage.getItem("isAdmin");
+
+		if (storedAdmin === "0" || storedAdmin === null) {
 			if (pathname !== "/login") {
 				router.replace("/login");
 			}
 		}
-	}, [isAdmin, pathname, router]);
+		setIsAdmin(storedAdmin);
+	}, [pathname, router]);
 
-	if (isAdmin === "0" || isAdmin === null) {
-		return <Login />;
-	}
-
-	return (
+	return isAdmin === "0" || isAdmin === null ? (
+		<Login />
+	) : (
 		<>
 			<FetchMetodosPago />
 			<FetchInventario />
